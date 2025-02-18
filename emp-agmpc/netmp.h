@@ -22,7 +22,7 @@ class NetIOMP { public:
 				usleep(1000);
 				ios[j] = new NetIO(IP[j], port+2*(i), true);
 #endif
-				ios[j]->set_nodelay();	
+				ios[j]->set_nodelay();
 
 #ifdef LOCALHOST
 				usleep(1000);
@@ -31,7 +31,7 @@ class NetIOMP { public:
 				usleep(1000);
 				ios2[j] = new NetIO(nullptr, port+2*(j)+1, true);
 #endif
-				ios2[j]->set_nodelay();	
+				ios2[j]->set_nodelay();
 			} else if(j == party) {
 #ifdef LOCALHOST
 				usleep(1000);
@@ -40,7 +40,7 @@ class NetIOMP { public:
 				usleep(1000);
 				ios[i] = new NetIO(nullptr, port+2*(i), true);
 #endif
-				ios[i]->set_nodelay();	
+				ios[i]->set_nodelay();
 
 #ifdef LOCALHOST
 				usleep(1000);
@@ -49,10 +49,42 @@ class NetIOMP { public:
 				usleep(1000);
 				ios2[i] = new NetIO(IP[i], port+2*(j)+1, true);
 #endif
-				ios2[i]->set_nodelay();	
+				ios2[i]->set_nodelay();
 			}
 		}
 	}
+
+    NetIOMP(int party) {
+		this->party = party;
+		memset(sent, false, nP+1);
+		for(int i = 1; i <= nP; ++i) {
+            for(int j = 1; j <= nP; ++j) {
+                if(i < j) {
+			        if(i == party) {
+			        	usleep(1000);
+                        // std::cout << "connect to " << IP[j - 1] << " " << PORT[j - 1] + i - 1 << std::endl;
+			        	ios[j] = new NetIO(IP[j - 1], PORT[j - 1] + i - 1, true);
+				        ios[j]->set_nodelay();
+
+		        		usleep(1000);
+                        // std::cout << "open server " << PORT[i - 1] + j - 1 << std::endl;
+        				ios2[j] = new NetIO(nullptr, PORT[i - 1] + j - 1, true);
+				        ios2[j]->set_nodelay();
+			        } else if(j == party) {
+                        usleep(1000);
+                        // std::cout << "open server " <<  PORT[j - 1] + i - 1 << std::endl;
+                        ios[i] = new NetIO(nullptr, PORT[j - 1] + i - 1, true);
+                        ios[i]->set_nodelay();
+                        usleep(1000);
+                        // std::cout << "connect to " << IP[i - 1] << " " << PORT[i - 1] + j - 1 << std::endl;
+                        ios2[i] = new NetIO(IP[i - 1], PORT[i - 1] + j - 1, true);
+                        ios2[i]->set_nodelay();
+			        }
+	        	}
+	        }
+        }
+    }
+
 	int64_t count() {
 		int64_t res = 0;
 		for(int i = 1; i <= nP; ++i) if(i != party){

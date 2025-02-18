@@ -36,3 +36,8 @@ cmake_install.cmake
 *.app
 
 perf.data*
+
+emp-ot/
+emp-tool/
+install/
+.vscode/
